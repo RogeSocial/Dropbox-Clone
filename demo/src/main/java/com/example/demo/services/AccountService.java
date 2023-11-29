@@ -1,24 +1,29 @@
 package com.example.demo.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 import com.example.demo.repositories.AccountRepository;
+import com.example.demo.util.JwtTokenUtil;
 import com.example.demo.util.PasswordEncoderUtil;
 import com.fasterxml.jackson.databind.ser.impl.StringArraySerializer;
 import com.example.demo.dtos.CreateAccountDto;
 import com.example.demo.models.Account;
 import java.util.List;
+import com.example.demo.models.CustomUserDetails;
 
 @Service
 public class AccountService {
     
     private AccountRepository accountRepository;
     private PasswordEncoderUtil passwordEncoder;
+    private JwtTokenUtil jwtTokenUtil;
     @Autowired
-    public AccountService(AccountRepository accountRepository, PasswordEncoderUtil passwordEncoderUtil){
+    public AccountService(AccountRepository accountRepository, PasswordEncoderUtil passwordEncoderUtil, JwtTokenUtil jwtTokenUtil){
         this.accountRepository = accountRepository;
         this.passwordEncoder = passwordEncoderUtil;
+        this.jwtTokenUtil = jwtTokenUtil;
     }
 
     public Account createAccount(CreateAccountDto accountDto){
@@ -33,15 +38,17 @@ public class AccountService {
 
     public String login(String email, String password) {
         var account = accountRepository.findByEmail(email);
-        try{
-            if(account != null){
-                if(passwordEncoder.verifyPassword(password, account.password, account.getSalt())){
-                    return "login successful";
+        try {
+            if (account != null) {
+                if (passwordEncoder.verifyPassword(password, account.getPassword(), account.getSalt())) {
+                    UserDetails userDetails = new CustomUserDetails(account); // Create UserDetails object with user info
+                    String token = jwtTokenUtil.generateToken(userDetails);
+                    return "login succesful, your token is :" + token; // Return the token to the caller
                 }
             } else {
                 return "email not found";
             }
-        } catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return "error";
         }
