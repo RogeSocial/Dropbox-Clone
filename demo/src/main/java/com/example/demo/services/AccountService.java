@@ -17,7 +17,7 @@ public class AccountService {
     @Autowired
     public AccountService(AccountRepository accountRepository, PasswordEncoderUtil passwordEncoderUtil){
         this.accountRepository = accountRepository;
-        this.passwordEncoder = passwordEncoder;
+        this.passwordEncoder = passwordEncoderUtil;
     }
 
     public Account createAccount(CreateAccountDto accountDto){
