@@ -5,6 +5,7 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 import com.example.demo.repositories.AccountRepository;
 import com.example.demo.util.PasswordEncoderUtil;
+import com.fasterxml.jackson.databind.ser.impl.StringArraySerializer;
 import com.example.demo.dtos.CreateAccountDto;
 import com.example.demo.models.Account;
 import java.util.List;
@@ -30,8 +31,25 @@ public class AccountService {
          return this.accountRepository.save(account);
     }
 
+    public String login(String email, String password) {
+        var account = accountRepository.findByEmail(email);
+        try{
+            if(account != null){
+                if(passwordEncoder.verifyPassword(password, account.password, account.getSalt())){
+                    return "login successful";
+                }
+            } else {
+                return "email not found";
+            }
+        } catch(Exception e){
+            e.printStackTrace();
+            return "error";
+        }
+        return "wrong password";
+    }
+
     public List<Account> getAllAccounts(){
         return accountRepository.findAll();
-    }
+    }    
 
 }

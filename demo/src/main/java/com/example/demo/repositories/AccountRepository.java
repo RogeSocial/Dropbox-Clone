@@ -9,4 +9,6 @@ public interface AccountRepository extends JpaRepository<Account, Integer>{
     List<Account> findAll();
 
     Account findById(int id);
+
+    Account findByEmail(String email);
 }
