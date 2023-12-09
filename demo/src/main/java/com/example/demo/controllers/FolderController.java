@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
@@ -56,6 +57,12 @@ public class FolderController {
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired token");
         }
+    }
+
+    //Gem folder by id
+    @GetMapping("/folder/get-folder/{id}")
+    public ResponseEntity<Folder> getFolderById(@RequestHeader("Authorization") String token, @PathVariable Integer id){
+        return ResponseEntity.ok(FolderService.getFolderById(id));
     }
 
     //Get all folders only for testing

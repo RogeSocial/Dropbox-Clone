@@ -7,5 +7,4 @@ import lombok.Setter;
 @Setter
 public class FolderDto {
     private String name;
-    private int owner;
 }

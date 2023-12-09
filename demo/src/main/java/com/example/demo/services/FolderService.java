@@ -26,12 +26,15 @@ public class FolderService {
 
         var folder = new Folder(
                 folderDto.getName(),
-                folderDto.getOwner(), 
                 account);
         return this.folderRepository.save(folder);
     }
 
     public List<Folder> getAllFolders() {
         return this.folderRepository.findAll();
+    }
+
+    public Folder getFolderById(Integer id) {
+        return this.folderRepository.findById(id).orElseThrow();
     }
 }
