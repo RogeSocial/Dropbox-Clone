@@ -7,56 +7,101 @@ import org.springframework.stereotype.Service;
 import com.example.demo.repositories.AccountRepository;
 import com.example.demo.util.JwtTokenUtil;
 import com.example.demo.util.PasswordEncoderUtil;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
 import com.fasterxml.jackson.databind.ser.impl.StringArraySerializer;
 import com.example.demo.dtos.CreateAccountDto;
 import com.example.demo.models.Account;
 import java.util.List;
-import com.example.demo.models.CustomUserDetails;
+
 
 @Service
-public class AccountService {
-    
+public class AccountService implements UserDetailsService {
+
     private AccountRepository accountRepository;
     private PasswordEncoderUtil passwordEncoder;
-    private JwtTokenUtil jwtTokenUtil;
+
     @Autowired
-    public AccountService(AccountRepository accountRepository, PasswordEncoderUtil passwordEncoderUtil, JwtTokenUtil jwtTokenUtil){
+    public AccountService(AccountRepository accountRepository, PasswordEncoderUtil passwordEncoderUtil) {
         this.accountRepository = accountRepository;
         this.passwordEncoder = passwordEncoderUtil;
-        this.jwtTokenUtil = jwtTokenUtil;
     }
 
-    public Account createAccount(CreateAccountDto accountDto){
+    public Account createAccount(CreateAccountDto accountDto) {
         String salt = BCrypt.gensalt();
-        var account = new Account(   
-            accountDto.getName(),
-            accountDto.getEmail(),
-            passwordEncoder.encodePassword(accountDto.getPassword(), salt),
-                salt);
-         return this.accountRepository.save(account);
+        var account = new Account(
+                accountDto.getName(),
+                accountDto.getEmail(),
+                passwordEncoder.encodePassword(accountDto.getPassword(), salt),
+                salt,
+                accountDto.getAuthority());
+
+        return this.accountRepository.save(account);
     }
 
     public String login(String email, String password) {
-        var account = accountRepository.findByEmail(email);
         try {
+            Account account = accountRepository.findByEmail(email);
             if (account != null) {
-                if (passwordEncoder.verifyPassword(password, account.getPassword(), account.getSalt())) {
-                    UserDetails userDetails = new CustomUserDetails(account); // Create UserDetails object with user info
-                    String token = jwtTokenUtil.generateToken(userDetails);
-                    return "login succesful, your token is :" + token; // Return the token to the caller
+                // Log the username here to check what name is fetched from the account
+                System.out.println("Username retrieved: " + account.getUsername());
+
+                if (passwordEncoder.verifyPassword(password, account.password, account.getSalt())) {
+                    // return a token with id, authority, and name in the payload
+                    return "Generated token: " + JwtTokenUtil.createToken(
+                            String.valueOf(account.getId()),
+                            account.getAuthority(),
+                            account.getEmail(),
+                            account.getName()
+                    );
                 }
             } else {
-                return "email not found";
+                return "email/user not found";
             }
         } catch (Exception e) {
             e.printStackTrace();
-            return "error";
+            return "error when getting email";
         }
         return "wrong password";
     }
 
-    public List<Account> getAllAccounts(){
+    public List<Account> getAllAccounts() {
         return accountRepository.findAll();
-    }    
+    }
 
+    public String verifyToken(String token) {
+        boolean isValid = JwtTokenUtil.verifyToken(token);
+        if(isValid){
+            String id = JwtTokenUtil.getSubjectFromToken(token);
+            Account account = accountRepository.findById(Integer.parseInt(id));
+            return "Token is valid name: " + account.getName() + "  id: " + account.getId();
+        }
+        else {
+            return "invalid token";
+        }
+    }
+
+    //has to do with spring security, basically authentication and authorization
+    @Override
+    public UserDetails loadUserByUsername(String name) throws UsernameNotFoundException {
+        try {
+            Account account = this.accountRepository.findByName(name)
+                    .orElseThrow(() -> new UsernameNotFoundException("Could not find user '" + name + "'."));
+
+            return org.springframework.security.core.userdetails.User.builder()
+                    .username(account.getUsername())
+                    .password(account.getPassword())
+                    .roles(account.getAuthority())
+                    .build();
+        } catch (Exception e) {
+            throw new UsernameNotFoundException("Error occurred while loading user by username: " + name, e);
+        }
+    }
+    
+    public Account getUserByToken(String token) {
+        //gets id from token
+        String subject = JwtTokenUtil.getSubjectFromToken(token);
+        return accountRepository.findById(Integer.parseInt(subject));
+    }
 }

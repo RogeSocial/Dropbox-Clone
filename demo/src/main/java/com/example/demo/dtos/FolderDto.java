@@ -5,9 +5,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class CreateAccountDto {
+public class FolderDto {
     private String name;
-    private String email;
-    private String password;
-    private String authority;
 }
