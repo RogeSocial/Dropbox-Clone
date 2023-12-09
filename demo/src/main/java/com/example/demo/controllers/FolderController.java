@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import java.security.Principal;
 import java.util.List;
 
 import com.example.demo.services.FolderService;
@@ -59,10 +60,25 @@ public class FolderController {
         }
     }
 
-    //Gem folder by id
-    @GetMapping("/folder/get-folder/{id}")
-    public ResponseEntity<Folder> getFolderById(@RequestHeader("Authorization") String token, @PathVariable Integer id){
-        return ResponseEntity.ok(FolderService.getFolderById(id));
+    // Get a Folder by ID
+    @GetMapping("/folder/{id}")
+    public ResponseEntity<?> getFolderById(@PathVariable Integer id, Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized access");
+        }
+
+        // Get folder by ID
+        Folder folder = FolderService.getFolderById(id);
+        if (folder == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        // Check if the authenticated user owns the folder
+        if (!folder.getAccount().getUsername().equals(principal.getName())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You don't have permission to access this folder");
+        }
+
+        return ResponseEntity.ok(folder);
     }
 
     //Get all folders only for testing

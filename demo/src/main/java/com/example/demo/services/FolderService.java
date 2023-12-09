@@ -35,6 +35,6 @@ public class FolderService {
     }
 
     public Folder getFolderById(Integer id) {
-        return this.folderRepository.findById(id).orElseThrow();
+        return this.folderRepository.findById(id).orElse(null);
     }
 }
