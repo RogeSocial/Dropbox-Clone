@@ -9,4 +9,5 @@ public class CreateAccountDto {
     private String name;
     private String email;
     private String password;
+    private String authority;
 }

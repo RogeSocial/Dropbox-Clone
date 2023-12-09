@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+
 import com.example.demo.dtos.CreateAccountDto;
 import com.example.demo.dtos.LoginDto;
 
@@ -42,6 +44,11 @@ public class AccountController {
     @PostMapping("/account/login")
     public ResponseEntity<String> login(@RequestBody LoginDto accountDto){
         return ResponseEntity.ok(accountService.login(accountDto.getEmail(), accountDto.getPassword()));
+    }
+
+    @GetMapping("/account/verify-token")
+    public String verifyToken(@RequestParam String token){
+        return accountService.verifyToken(token);
     }
 
 }
