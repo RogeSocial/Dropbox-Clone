@@ -46,13 +46,14 @@ public class AccountService implements UserDetailsService {
             if (account != null) {
                 // Log the username here to check what name is fetched from the account
                 System.out.println("Username retrieved: " + account.getUsername());
-    
+
                 if (passwordEncoder.verifyPassword(password, account.password, account.getSalt())) {
                     // return a token with id, authority, and name in the payload
                     return "Generated token: " + JwtTokenUtil.createToken(
                             String.valueOf(account.getId()),
                             account.getAuthority(),
-                            account.getEmail()
+                            account.getEmail(),
+                            account.getName()
                     );
                 }
             } else {
@@ -84,14 +85,23 @@ public class AccountService implements UserDetailsService {
     //has to do with spring security, basically authentication and authorization
     @Override
     public UserDetails loadUserByUsername(String name) throws UsernameNotFoundException {
-        Account account = this.accountRepository.findByName(name)
-                .orElseThrow(() -> new UsernameNotFoundException("Could not find user '" + name + "'."));
+        try {
+            Account account = this.accountRepository.findByName(name)
+                    .orElseThrow(() -> new UsernameNotFoundException("Could not find user '" + name + "'."));
 
-        return org.springframework.security.core.userdetails.User.builder()
-                .username(account.getUsername())
-                .password(account.getPassword())
-                .roles(account.getAuthority())
-                .build();
+            return org.springframework.security.core.userdetails.User.builder()
+                    .username(account.getUsername())
+                    .password(account.getPassword())
+                    .roles(account.getAuthority())
+                    .build();
+        } catch (Exception e) {
+            throw new UsernameNotFoundException("Error occurred while loading user by username: " + name, e);
+        }
     }
-
+    
+    public Account getUserByToken(String token) {
+        //gets id from token
+        String subject = JwtTokenUtil.getSubjectFromToken(token);
+        return accountRepository.findById(Integer.parseInt(subject));
+    }
 }

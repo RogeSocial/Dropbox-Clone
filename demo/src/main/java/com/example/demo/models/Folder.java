@@ -12,9 +12,10 @@ public class Folder {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     public int id;
 
-    public Folder(String name, int owner) {
+    public Folder(String name, int owner, Account account) {
         this.folder_name = name;
         this.folder_owner = owner;
+        this.account = account;
     }
 
     @Column(nullable = false)
@@ -22,4 +23,8 @@ public class Folder {
 
     @Column(nullable = false)
     public int folder_owner;
+
+    @ManyToOne
+    @JoinColumn(name = "account_id")
+    public Account account;
 }

@@ -14,12 +14,13 @@ public class JwtTokenUtil {
     private static final String secret = "super-secret-key";
 
     //creating the token, payload will contain name and id
-    public static String createToken(String subject, String authority, String email) {
+    public static String createToken(String subject, String authority, String email, String name) {
         Algorithm algorithm = Algorithm.HMAC256(secret);
         return JWT.create()
                 .withSubject(subject)
                 .withClaim("authorities", authority)
                 .withClaim("email", email)
+                .withClaim("name", name)
                 .withExpiresAt(new Date(System.currentTimeMillis() + 3600000))
                 .sign(algorithm);
     }
@@ -38,15 +39,21 @@ public class JwtTokenUtil {
     }
 
     //returns the subject(id) from token
-    public static String getSubjectFromToken(String token) {
-        try {
-            Algorithm algorithm = Algorithm.HMAC256(secret);
-            JWTVerifier verifier = JWT.require(algorithm).build();
+        public static String getSubjectFromToken(String token) {
+            try {
+                Algorithm algorithm = Algorithm.HMAC256(secret);
+                JWTVerifier verifier = JWT.require(algorithm).build();
 
-            DecodedJWT jwt = verifier.verify(token);
-            return jwt.getSubject();
-        } catch (JWTDecodeException e) {
-            return null;
+                DecodedJWT jwt = verifier.verify(token);
+                return jwt.getSubject();
+            } catch (JWTVerificationException e) {
+                // Handle JWT verification exception
+                System.out.println("Failed to verify token: " + e.getMessage());
+                return null;
+            } catch (Exception e) {
+                // Handle other exceptions
+                System.out.println("An error occurred: " + e.getMessage());
+                return null;
+            }
         }
-    }
 }

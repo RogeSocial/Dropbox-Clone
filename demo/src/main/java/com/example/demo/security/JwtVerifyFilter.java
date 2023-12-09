@@ -43,8 +43,8 @@ public class JwtVerifyFilter extends OncePerRequestFilter {
             //verify the token
             var jwt = verifier.verify(authHeader);
             //get user based on name
-            var user = this.userService.loadUserByUsername(jwt.getClaim("name").asString());
-            var auth = new UsernamePasswordAuthenticationToken(user, user.getPassword(), user.getAuthorities());
+            var account = this.userService.loadUserByUsername(jwt.getClaim("name").asString());
+            var auth = new UsernamePasswordAuthenticationToken(account, account.getPassword(), account.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(auth);
 
             filterChain.doFilter(request, response);
