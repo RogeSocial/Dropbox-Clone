@@ -8,4 +8,5 @@ import lombok.Setter;
 public class FileDto {
     private String name;
     private String link_to_map;
+    private byte[] fileContent;
 }
