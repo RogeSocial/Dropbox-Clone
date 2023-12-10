@@ -40,7 +40,7 @@ public class Account implements UserDetails {
 
     @Column(nullable = false)
     public String salt;
-    
+
     @Column(nullable = false)
     public String authority;
 

@@ -10,11 +10,9 @@ import com.example.demo.util.PasswordEncoderUtil;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
-import com.fasterxml.jackson.databind.ser.impl.StringArraySerializer;
 import com.example.demo.dtos.CreateAccountDto;
 import com.example.demo.models.Account;
 import java.util.List;
-
 
 @Service
 public class AccountService implements UserDetailsService {
@@ -53,8 +51,7 @@ public class AccountService implements UserDetailsService {
                             String.valueOf(account.getId()),
                             account.getAuthority(),
                             account.getEmail(),
-                            account.getName()
-                    );
+                            account.getName());
                 }
             } else {
                 return "email/user not found";
@@ -72,17 +69,16 @@ public class AccountService implements UserDetailsService {
 
     public String verifyToken(String token) {
         boolean isValid = JwtTokenUtil.verifyToken(token);
-        if(isValid){
+        if (isValid) {
             String id = JwtTokenUtil.getSubjectFromToken(token);
             Account account = accountRepository.findById(Integer.parseInt(id));
             return "Token is valid name: " + account.getName() + "  id: " + account.getId();
-        }
-        else {
+        } else {
             return "invalid token";
         }
     }
 
-    //has to do with spring security, basically authentication and authorization
+    // has to do with spring security, basically authentication and authorization
     @Override
     public UserDetails loadUserByUsername(String name) throws UsernameNotFoundException {
         try {
@@ -98,9 +94,9 @@ public class AccountService implements UserDetailsService {
             throw new UsernameNotFoundException("Error occurred while loading user by username: " + name, e);
         }
     }
-    
+
     public Account getUserByToken(String token) {
-        //gets id from token
+        // gets id from token
         String subject = JwtTokenUtil.getSubjectFromToken(token);
         return accountRepository.findById(Integer.parseInt(subject));
     }

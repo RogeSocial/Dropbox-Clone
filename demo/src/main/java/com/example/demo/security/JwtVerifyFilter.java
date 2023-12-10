@@ -35,16 +35,18 @@ public class JwtVerifyFilter extends OncePerRequestFilter {
 
         try {
             var algorithm = Algorithm.HMAC256("super-secret-key");
-            //generate token
+            // generate token
             JWTVerifier verifier = JWT.require(algorithm)
                     .build();
-            //remove the "Bearer" part of the header, since the verifier compares the raw hash data straight up
+            // remove the "Bearer" part of the header, since the verifier compares the raw
+            // hash data straight up
             authHeader = authHeader.replace("Bearer ", "");
-            //verify the token
+            // verify the token
             var jwt = verifier.verify(authHeader);
-            //get user based on name
+            // get user based on name
             var account = this.userService.loadUserByUsername(jwt.getClaim("name").asString());
-            var auth = new UsernamePasswordAuthenticationToken(account, account.getPassword(), account.getAuthorities());
+            var auth = new UsernamePasswordAuthenticationToken(account, account.getPassword(),
+                    account.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(auth);
 
             filterChain.doFilter(request, response);
