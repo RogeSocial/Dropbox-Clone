@@ -6,7 +6,7 @@ import java.util.Collection;
 
 public class CustomUserDetails implements UserDetails {
 
-    private final Account account; // Assuming Account is your user model
+    private final Account account;
 
     public CustomUserDetails(Account account) {
         this.account = account;
@@ -14,8 +14,6 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // Implement to return user roles/authorities
-        // Example: return Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
         return null;
     }
 
@@ -28,8 +26,6 @@ public class CustomUserDetails implements UserDetails {
     public String getUsername() {
         return account.getEmail();
     }
-
-    // Other UserDetails methods like isAccountNonExpired, isAccountNonLocked, etc.
 
     public Account getAccount() {
         return account;

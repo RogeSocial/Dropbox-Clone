@@ -1,7 +1,6 @@
 package com.example.demo.controllers;
 
 import org.springframework.web.bind.annotation.RestController;
-import org.apache.catalina.connector.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,33 +22,31 @@ public class AccountController {
     private AccountService accountService;
 
     @Autowired
-    public AccountController(AccountService accountService){
+    public AccountController(AccountService accountService) {
         this.accountService = accountService;
     }
 
     // Retrieve all accounts
     @GetMapping("/account/get-all-users")
-    public ResponseEntity<List<Account>> getAllAccounts(){
+    public ResponseEntity<List<Account>> getAllAccounts() {
         return ResponseEntity.ok(accountService.getAllAccounts());
     }
 
     // Create an account
     @PostMapping("/account/register")
-    public ResponseEntity<String> addAccount(@RequestBody CreateAccountDto accountDto){
+    public ResponseEntity<String> addAccount(@RequestBody CreateAccountDto accountDto) {
         accountService.createAccount(accountDto);
         return ResponseEntity.ok("account added: " + accountDto.getName());
     }
 
     // Login
     @PostMapping("/account/login")
-    public ResponseEntity<String> login(@RequestBody LoginDto accountDto){
+    public ResponseEntity<String> login(@RequestBody LoginDto accountDto) {
         return ResponseEntity.ok(accountService.login(accountDto.getEmail(), accountDto.getPassword()));
     }
 
     @GetMapping("/account/verify-token")
-    public String verifyToken(@RequestParam String token){
+    public String verifyToken(@RequestParam String token) {
         return accountService.verifyToken(token);
     }
-
 }
-

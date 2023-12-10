@@ -40,10 +40,8 @@ public class FileService {
         System.out.println("Account ID: " + account.getId());
         System.out.println("Folder Account ID: " + folder.getAccount().getId());
 
-        // Get the original filename
         String name = multipartFile.getOriginalFilename();
 
-        // Get the file content as bytes
         byte[] file_content;
         try {
             file_content = multipartFile.getBytes();
@@ -55,8 +53,7 @@ public class FileService {
                 name,
                 file_content,
                 folder,
-                account
-        );
+                account);
 
         return fileRepository.save(file);
     }

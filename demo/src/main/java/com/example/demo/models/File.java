@@ -31,6 +31,6 @@ public class File {
     private Folder folder;
 
     @ManyToOne
-    @JoinColumn(name = "account_id") // Assuming this column exists in your database
+    @JoinColumn(name = "account_id")
     private Account account;
 }

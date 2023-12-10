@@ -20,11 +20,11 @@ import com.example.demo.models.Folder;
 
 @RestController
 public class FolderController {
-    
+
     private FolderService FolderService;
 
     @Autowired
-    public FolderController(FolderService FolderService){
+    public FolderController(FolderService FolderService) {
         this.FolderService = FolderService;
     }
 
@@ -42,11 +42,12 @@ public class FolderController {
 
     // Create a Folder
     @PostMapping("/folder/create")
-    public ResponseEntity<String> createFolder(@RequestBody FolderDto folderDto, @RequestHeader("Authorization") String token) {
+    public ResponseEntity<String> createFolder(@RequestBody FolderDto folderDto,
+            @RequestHeader("Authorization") String token) {
 
         System.out.println("Token: " + token);
 
-            // Remove "Bearer " prefix if present
+        // Remove "Bearer " prefix if present
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7); // Remove "Bearer " (7 characters)
         }
@@ -81,9 +82,9 @@ public class FolderController {
         return ResponseEntity.ok(folder);
     }
 
-    //Get all folders only for testing
+    // Get all folders only for testing
     @GetMapping("/folder/get-all-folders")
-    public ResponseEntity<List<Folder>> getAllFolders(){
+    public ResponseEntity<List<Folder>> getAllFolders() {
         return ResponseEntity.ok(FolderService.getAllFolders());
     }
 }
