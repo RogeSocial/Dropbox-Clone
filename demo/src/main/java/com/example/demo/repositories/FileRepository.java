@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface FileRepository extends JpaRepository<File, Integer> {
     List<File> findAll();
+
+    List<File> findByAccountId(int accountId);
 }

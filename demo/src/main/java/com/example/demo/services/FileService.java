@@ -5,6 +5,8 @@ import org.springframework.stereotype.Service;
 import com.example.demo.repositories.FileRepository;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import com.example.demo.dtos.FileDto;
 import com.example.demo.models.Account;
@@ -57,5 +59,24 @@ public class FileService {
         );
 
         return fileRepository.save(file);
+    }
+
+    public List<FileDto> getFilesByAccountId(int accountId, String token) {
+        Account account = accountService.getUserByToken(token);
+
+        if (account == null || account.getId() != accountId) {
+            throw new RuntimeException("Invalid account or unauthorized access");
+        }
+
+        // In postman file_content is returning as null to make it more readable
+        List<File> files = fileRepository.findByAccountId(accountId);
+        return files.stream()
+                .map(file -> {
+                    FileDto fileDto = new FileDto();
+                    fileDto.setId(file.getId());
+                    fileDto.setName(file.getName());
+                    return fileDto;
+                })
+                .collect(Collectors.toList());
     }
 }
