@@ -3,8 +3,8 @@ package com.example.demo.services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.example.demo.repositories.FileRepository;
-import com.example.demo.services.FolderService;
-import com.example.demo.services.AccountService;
+import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
 
 import com.example.demo.dtos.FileDto;
 import com.example.demo.models.Account;
@@ -25,23 +25,37 @@ public class FileService {
         this.folderService = folderService;
     }
 
-    public File createFile(FileDto fileDto, int folderId, String token) {
+    public File createFile(MultipartFile multipartFile, int folderId, String token) {
         Account account = accountService.getUserByToken(token);
-        Folder folder = folderService.getFolderById(folderId); 
+        Folder folder = folderService.getFolderById(folderId);
 
         if (folder == null || folder.getAccount().getId() != account.getId()) {
             throw new RuntimeException("Folder not found or you don't have permission to upload to this folder");
         }
 
+        System.out.println("Token: " + token);
+        System.out.println("Folder ID: " + folderId);
+        System.out.println("Account ID: " + account.getId());
+        System.out.println("Folder Account ID: " + folder.getAccount().getId());
+
+        // Get the original filename
+        String name = multipartFile.getOriginalFilename();
+
+        // Get the file content as bytes
+        byte[] file_content;
+        try {
+            file_content = multipartFile.getBytes();
+        } catch (IOException e) {
+            throw new RuntimeException("Error reading file content");
+        }
+
         File file = new File(
-                fileDto.getName(),
-                fileDto.getLink_to_map(),
-                fileDto.getFileContent(),
+                name,
+                file_content,
                 folder,
                 account
         );
 
         return fileRepository.save(file);
     }
-
 }

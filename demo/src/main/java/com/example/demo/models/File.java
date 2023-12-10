@@ -12,10 +12,9 @@ public class File {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    public File(String name, String link_to_map, byte[] fileContent, Folder folder, Account account) {
+    public File(String name, byte[] file_content, Folder folder, Account account) {
         this.name = name;
-        this.link_to_map = link_to_map;
-        this.fileContent = fileContent;
+        this.file_content = file_content;
         this.folder = folder;
         this.account = account;
     }
@@ -23,12 +22,9 @@ public class File {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
-    private String link_to_map;
-
     @Lob
     @Column(nullable = false)
-    private byte[] fileContent;
+    private byte[] file_content;
 
     @ManyToOne
     @JoinColumn(name = "folder_id")
