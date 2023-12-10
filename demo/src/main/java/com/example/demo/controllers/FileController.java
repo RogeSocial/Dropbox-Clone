@@ -1,12 +1,23 @@
 package com.example.demo.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.services.FileService;
 import com.example.demo.util.JwtTokenUtil;
+
+import jakarta.servlet.http.HttpServletResponse;
+
 import com.example.demo.dtos.FileDto;
-import com.example.demo.models.File;
+
+import java.io.ByteArrayInputStream;
+import java.net.URLConnection;
 import java.util.List;
+
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import com.example.demo.models.File;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -95,4 +106,31 @@ public class FileController {
                     .body("Error deleting file: " + e.getMessage());
         }
     }
+
+    @GetMapping("/files/download/{fileId}")
+    public ResponseEntity<byte[]> downloadFileById(@PathVariable int fileId,
+                                                @RequestHeader("Authorization") String token,
+                                                HttpServletResponse response) {
+
+        if (!isValidToken(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+
+        try {
+            File file = fileService.getFileById(fileId, token.substring(7));
+            byte[] fileContent = file.getFile_content();
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.parseMediaType(URLConnection.guessContentTypeFromStream(new ByteArrayInputStream(fileContent))));
+            headers.setContentDispositionFormData("attachment", file.getName());
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .body(fileContent);
+        } catch (Exception e) {
+            // Log other unexpected errors
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+    
 }

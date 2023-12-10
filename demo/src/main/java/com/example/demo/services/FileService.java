@@ -90,4 +90,15 @@ public class FileService {
 
         fileRepository.deleteById(fileId);
     }
+
+    public File getFileById(int fileId, String token) {
+        Account account = accountService.getUserByToken(token);
+        File file = fileRepository.findById(fileId).orElse(null);
+
+        if (file == null || file.getAccount().getId() != account.getId()) {
+            throw new RuntimeException("File not found or you don't have permission to access this file");
+        }
+
+        return file;
+    }
 }
