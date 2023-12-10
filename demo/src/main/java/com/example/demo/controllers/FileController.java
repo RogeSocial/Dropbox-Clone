@@ -8,6 +8,7 @@ import com.example.demo.dtos.FileDto;
 import com.example.demo.models.File;
 import java.util.List;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -75,5 +76,23 @@ public class FileController {
         }
 
         return ResponseEntity.ok(fileDtos);
+    }
+
+    @DeleteMapping("/files/delete/{fileId}")
+    public ResponseEntity<String> deleteFileById(@PathVariable int fileId,
+            @RequestHeader("Authorization") String token) {
+
+        if (!isValidToken(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or missing token");
+        }
+
+        try {
+            fileService.deleteFileById(fileId, token.substring(7));
+            return ResponseEntity.ok("File deleted successfully");
+        } catch (Exception e) {
+            // Log other unexpected errors
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error deleting file: " + e.getMessage());
+        }
     }
 }

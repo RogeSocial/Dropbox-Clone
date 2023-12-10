@@ -79,4 +79,15 @@ public class FileService {
                 })
                 .collect(Collectors.toList());
     }
+
+    public void deleteFileById(int fileId, String token) {
+        Account account = accountService.getUserByToken(token);
+        File file = fileRepository.findById(fileId).orElse(null);
+
+        if (file == null || file.getAccount().getId() != account.getId()) {
+            throw new RuntimeException("File not found or you don't have permission to delete this file");
+        }
+
+        fileRepository.deleteById(fileId);
+    }
 }
